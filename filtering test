@@ -1,3 +1,31 @@
 var modisTest = ee.ImageCollection('MODIS/061/MCD43A3').filter(
-  ee.Filter.date('2019-01-01', '2020-01-01')).first().select("BRDF_Albedo_Band_Mandatory_Quality_Band1");
-print(modisTest);
+  ee.Filter.date('2019-06-01', '2020-01-01'));
+var blackSkyAlbedoVis = {
+  min: 0.0,
+  max: 255.0,
+};
+// from https://spatialthoughts.com/2021/08/19/qa-bands-bitmasks-gee/
+var bitwiseExtract = function(input, fromBit, toBit) {
+  var maskSize = ee.Number(1).add(toBit).subtract(fromBit);
+  var mask = ee.Number(1).leftShift(maskSize).subtract(1);
+  return input.rightShift(fromBit).bitwiseAnd(mask);
+};
+// QA for each band and sat probably needs to be done seperately as they vary
+function band1QA(image){
+  var qaBand = image.select("BRDF_Albedo_Band_Mandatory_Quality_Band1");
+  var qaMask = bitwiseExtract(qaBand, 0, 1).eq(0);
+  var band = image.select('Albedo_BSA_Band1').updateMask(qaMask).rename('qa_Albedo_BSA_Band1');
+  return image.addBands(band);
+  };
+  
+var modisTestFilter = modisTest.map(band1QA);
+//var qaMask = bitwiseExtract(modisTest, 0, 1).eq(0)
+//var qaMask1 = bitwiseExtract(modisTest, 1, 2).eq()
+//var dataQualityMask = bitwiseExtract(modisTest, 3, 4).eq(0)
+//var dataQualityMask1 = bitwiseExtract(modisTest, 5, 6).eq(0)
+//var dataQualityMask2 = bitwiseExtract(modisTest, 7, 8).eq(0)
+//var mask = qaMask.and(dataQualityMask).and(dataQualityMask1).and(dataQualityMask2)
+//var modisTestMasked = modisTest.updateMask(qaMask)  
+Map.addLayer(modisTestFilter.select('qa_Albedo_BSA_Band1').median(),blackSkyAlbedoVis, 'QA Mask');
+//Map.addLayer(modisTest,blackSkyAlbedoVis, 'Black-Sky Albedo');
+
