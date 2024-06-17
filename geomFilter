@@ -3,24 +3,13 @@
 var domainShapeFile = 'projects/gee-project-sylvia/assets/test_domain'
 var domain = ee.FeatureCollection(domainShapeFile);
 
-domainClipper(image,shapefile){
-  var clippedImage = image.clip(shapefile);
+function domainClipper(image)
+{
+  var clippedImage = image.updateMask(domain);
   return clippedimage;
 }
   
-  
-
-var CollectionFilter = function(imageCollectionLoc,filteringShape,startDate,EndDate)
-{
-  var imageGroup = ee.ImageCollection(imageCollectionLoc);
-  var filtered = imageGroup.filter(ee.Filter.date(startDate,EndDate)).filter(ee.Filter.bounds(filteringShape));
-  var masked = filtered.map(domainClipper(domain));
-  return masked;
-}
-
-var modisTest= CollectionFilter("MODIS/061/MCD43A3",domain,
-"2020-01-01","2021-01-01")
-
+// bitwise extraction function in ee from   
 var bitwiseExtract = function(input, fromBit, toBit) {
   var maskSize = ee.Number(1).add(toBit).subtract(fromBit);
   var mask = ee.Number(1).leftShift(maskSize).subtract(1);
@@ -34,6 +23,18 @@ function band1QA(image){
   var band = image.select('Albedo_BSA_Band1').updateMask(qaMask).rename('qa_Albedo_BSA_Band1');
   return image.addBands(band);
   }
+  
+var CollectionFilter = function(imageCollectionLoc,filteringShape,startDate,EndDate)
+{
+  var imageGroup = ee.ImageCollection(imageCollectionLoc);
+  var filtered = imageGroup.filter(ee.Filter.date(startDate,EndDate)).filter(ee.Filter.bounds(filteringShape));
+  var masked = filtered.map(domainClipper(domain));
+  return masked;
+}
+
+var modisTest= CollectionFilter("MODIS/061/MCD43A3",domain,
+"2020-01-01","2021-01-01")
+
 
 var ModisTestQa = modisTest.map(band1QA)
 var image = ModisTestQa.median()
