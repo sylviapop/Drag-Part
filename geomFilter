@@ -1,20 +1,43 @@
 
 
 var domainShapeFile = 'projects/gee-project-sylvia/assets/test_domain'
+var domain = ee.FeatureCollection(domainShapeFile);
 
-var domain  = ee.FeatureCollection(domainShapeFile);
+domainClipper(image,shapefile){
+  var clippedImage = image.clip(shapefile);
+  return clippedimage;
+}
+  
+  
 
 var CollectionFilter = function(imageCollectionLoc,filteringShape,startDate,EndDate)
 {
   var imageGroup = ee.ImageCollection(imageCollectionLoc);
   var filtered = imageGroup.filter(ee.Filter.date(startDate,EndDate)).filter(ee.Filter.bounds(filteringShape));
-  return filtered;
+  var masked = filtered.map(domainClipper(domain));
+  return masked;
 }
 
 var modisTest= CollectionFilter("MODIS/061/MCD43A3",domain,
 "2020-01-01","2021-01-01")
-var image = modisTest.median()
-var blackSkyAlbedo = image.select('Albedo_BSA_Band1').clip(domain);
+
+var bitwiseExtract = function(input, fromBit, toBit) {
+  var maskSize = ee.Number(1).add(toBit).subtract(fromBit);
+  var mask = ee.Number(1).leftShift(maskSize).subtract(1);
+  return input.rightShift(fromBit).bitwiseAnd(mask);
+};
+
+// QA for each band and sat probably needs to be done seperately as they vary
+function band1QA(image){
+  var qaBand = image.select("BRDF_Albedo_Band_Mandatory_Quality_Band1");
+  var qaMask = bitwiseExtract(qaBand, 0, 1).eq(0);
+  var band = image.select('Albedo_BSA_Band1').updateMask(qaMask).rename('qa_Albedo_BSA_Band1');
+  return image.addBands(band);
+  }
+
+var ModisTestQa = modisTest.map(band1QA)
+var image = ModisTestQa.median()
+var blackSkyAlbedo = image.select('qa_Albedo_BSA_Band1').clip(domain);
 var blackSkyAlbedoVis = {
   min: 0.0,
   max: 400.0,
