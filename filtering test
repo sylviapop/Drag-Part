@@ -16,7 +16,7 @@ function band1QA(image){
   var qaMask = bitwiseExtract(qaBand, 0, 1).eq(0);
   var band = image.select('Albedo_BSA_Band1').updateMask(qaMask).rename('qa_Albedo_BSA_Band1');
   return image.addBands(band);
-  };
+  }
   
 var modisTestFilter = modisTest.map(band1QA);
 //var qaMask = bitwiseExtract(modisTest, 0, 1).eq(0)
