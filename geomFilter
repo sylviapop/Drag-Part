@@ -1,13 +1,23 @@
 
 
-var CollectionFilter = function(imageCollectionLoc,shapefileLoc,startDate,EndDate,cloudMetaName,cloudyPer)
+var domainShapeFile = 'projects/gee-project-sylvia/assets/test_domain'
+
+var domain  = ee.FeatureCollection(domainShapeFile);
+
+var CollectionFilter = function(imageCollectionLoc,filteringShape,startDate,EndDate)
 {
   var imageGroup = ee.ImageCollection(imageCollectionLoc);
-  var shapefile = ee.FeatureCollection(shapefileLoc);
-  // filtering grabs if any of the data matches, so will grab if part of image matches geometry, clipping will
-  // mask to the geometry
-  var filtered = imageGroup.filter(ee.Filter.lt(cloudMetaName,cloudyPer)).filter(ee.Filter.date(startDate,EndDate))
-  .filter(ee.Filter.bounds(shapefile));
-  var image = filtered.median();
-  
+  var filtered = imageGroup.filter(ee.Filter.date(startDate,EndDate)).filter(ee.Filter.bounds(filteringShape));
+  return filtered;
 }
+
+var modisTest= CollectionFilter("MODIS/061/MCD43A3",domain,
+"2020-01-01","2021-01-01")
+var image = modisTest.median()
+var blackSkyAlbedo = image.select('Albedo_BSA_Band1').clip(domain);
+var blackSkyAlbedoVis = {
+  min: 0.0,
+  max: 400.0,
+};
+Map.addLayer(blackSkyAlbedo, blackSkyAlbedoVis, 'Black-Sky Albedo');
+Map.addLayer(domain, {color: 'blue'}, 'Domain');
