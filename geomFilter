@@ -1,0 +1,13 @@
+
+
+var CollectionFilter = function(imageCollectionLoc,shapefileLoc,startDate,EndDate,cloudMetaName,cloudyPer)
+{
+  var imageGroup = ee.ImageCollection(imageCollectionLoc);
+  var shapefile = ee.FeatureCollection(shapefileLoc);
+  // filtering grabs if any of the data matches, so will grab if part of image matches geometry, clipping will
+  // mask to the geometry
+  var filtered = imageGroup.filter(ee.Filter.lt(cloudMetaName,cloudyPer)).filter(ee.Filter.date(startDate,EndDate))
+  .filter(ee.Filter.bounds(shapefile));
+  var image = filtered.median();
+  
+}
