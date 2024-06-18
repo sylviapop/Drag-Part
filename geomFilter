@@ -28,7 +28,7 @@ function scalingFactorUpdate(scale)
 
 // scales images .. note that you should update the scaling factor before using this
 function scaler(image){
-  return image*scalingFactor;
+  return image.multiply(scalingFactor);
 }
 // bitwise extraction function in ee from https://spatialthoughts.com/2021/08/19/qa-bands-bitmasks-gee/
 var bitwiseExtract = function(input, fromBit, toBit) {
@@ -67,8 +67,8 @@ function helperFunction(collection,filtering,start,end,qaBand,band,scale){
   bandNameUpdate(qaBand,band);
   scalingFactorUpdate(scale);
   var qaedCollection = filtered_collection.map(qa);
-  scaled_collection = qaedCollection.map(scaler);
-  return scaled_collection;
+  var scaled_collection = qaedCollection.map(scaler);
+  return qaedCollection;
   
 }
 
@@ -81,16 +81,20 @@ var A3test = helperFunction("MODIS/061/MCD43A3",domain,
 "2020-01-01","2021-01-01","BRDF_Albedo_Band_Mandatory_Quality_Band1","Albedo_BSA_Band1",0.001);
 
 var image =A3test.median();
-var blackSkyAlbedo = image.select('qa_Albedo_BSA_Band1');
+var blackSkyAlbedo = scaler(image.select('qa_Albedo_BSA_Band1'));
 
 
 
 var A1test= helperFunction("MODIS/061/MCD43A1",domain,
-"2020-01-01","2021-01-01","BRDF_Albedo_Band_Mandatory_Quality_Band1",)
+"2020-01-01","2021-01-01","BRDF_Albedo_Band_Mandatory_Quality_Band1","BRDF_Albedo_Parameters_Band1_iso",0.001);
+var image = A1test.median();
+var A1BDRF = scaler(image.select('qa_BRDF_Albedo_Parameters_Band1_iso'));
 
 var blackSkyAlbedoVis = {
-  min: 0.0,
-  max: 0.4,
+  gamma: 1,
+  max: 0.373,
+  min: 0.002,
+  opacity: 1,
 };
 Map.addLayer(A1BDRF, blackSkyAlbedoVis, 'iso');
 Map.addLayer(domain, {color: 'blue'}, 'Domain');
