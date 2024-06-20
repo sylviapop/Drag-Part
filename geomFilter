@@ -96,6 +96,9 @@ var blackSkyAlbedoVis = {
   min: 0.002,
   opacity: 1,
 };
+
+
+
 Map.addLayer(A1BDRF, blackSkyAlbedoVis, 'iso');
 Map.addLayer(domain, {color: 'blue'}, 'Domain');
 Map.addLayer(blackSkyAlbedo, blackSkyAlbedoVis, 'Black Sky');
