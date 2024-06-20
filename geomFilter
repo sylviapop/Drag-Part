@@ -9,9 +9,6 @@ var snow_name = "NDSI_Snow_Cover";
 var snow_t = 10;
 
 
-
-
-
 // load the domain as global varible since it's used extensively 
 var domainShapeFile = 'projects/gee-project-sylvia/assets/test_domain';
 var domain = ee.FeatureCollection(domainShapeFile);
@@ -110,6 +107,10 @@ function SnowHelperFunction(collection,filtering,start,end,qaBand,band,scale){
   
 }
 
+function snowMaskapplier(image){
+  
+}
+
 
 
 // testing the functions on the two datasets
@@ -129,15 +130,23 @@ var A1BDRF = scaler(image.select('qa_BRDF_Albedo_Parameters_Band1_iso'));
 var snow =  SnowHelperFunction("MODIS/061/MOD10A1",domain,
 "2020-01-01","2021-01-01","NDSI_Snow_Cover_Basic_QA","NDSI_Snow_Cover",1);
 
+var snow_aqua =  SnowHelperFunction("MODIS/061/MOD10A1",domain,
+"2020-01-01","2021-01-01","NDSI_Snow_Cover_Basic_QA","NDSI_Snow_Cover",1);
+
+
 var blackSkyAlbedoVis = {
   gamma: 1,
   max: 0.373,
   min: 0.002,
   opacity: 1,
 };
+var snowbands =snow.first().bandNames();
 
-
-Map.addLayer(snow.first());
-Map.addLayer(A1BDRF.updateMask(snow.first()), blackSkyAlbedoVis, 'iso');
+A1test = A1test.linkCollection(snow,snowbands);
+print(A1test)
+Map.addLayer(snow.first(),{Name:'Terra'});
+Map.addLayer(snow_aqua.first(),{Name:'Aqua'});
+Map.addLayer(A1BDRF.updateMask(snow.first()), blackSkyAlbedoVis, 'iso_mask');
+Map.addLayer(A1BDRF, blackSkyAlbedoVis, 'iso');
 //Map.addLayer(domain, {color: 'blue'}, 'Domain');
 //Map.addLayer(blackSkyAlbedo, blackSkyAlbedoVis, 'Black Sky');
