@@ -3,7 +3,13 @@
 // global variables that are used to update names & values in map functions
 var qa_name = "BRDF_Albedo_Band_Mandatory_Quality_Band1";
 var band_name = "Albedo_BSA_Band1";
-var scalingFactor = 0.001; // set to 1 if no scaling needed
+var a = 0.001; // set to 1 if no scaling needed
+var qa_snow_name = "NDSI_Snow_Cover_Basic_QA";
+var snow_name = "NDSI_Snow_Cover";
+var snow_t = 10;
+
+
+
 
 
 // load the domain as global varible since it's used extensively 
@@ -23,12 +29,12 @@ function bandNameUpdate(qaBand,normalBand)
 // updates the scaling factor if needed
 function scalingFactorUpdate(scale)
 {
-  scalingFactor = scale;
+  a = scale;
 }
 
 // scales images .. note that you should update the scaling factor before using this
 function scaler(image){
-  return image.multiply(scalingFactor);
+  return image.multiply(a);
 }
 // bitwise extraction function in ee from https://spatialthoughts.com/2021/08/19/qa-bands-bitmasks-gee/
 var bitwiseExtract = function(input, fromBit, toBit) {
@@ -46,7 +52,29 @@ function qa(image){
   return image.addBands(band);
 }
 
+//QA function for snow data masks for ocean,night and ok data
+function qaSnow(image){
+  var qaMask = image.expression(
+    // includes good,best and ok data
+    '(QA == 0) || (QA == 1)|| (QA == 2)', {
+      'QA': image.select(qa_snow_name),
+    });
 
+  var band = image.select(snow_name).updateMask(qaMask).rename('qa_'+band_name);
+  return band;
+  
+  
+}
+
+function snowmasking(image){
+  var valueMask = image.expression(
+    'thres < value',{
+      'thres':image.select('qa_'+snow_name),
+      'value':snow_t
+      
+    })
+    return valueMask.rename('snow mask')
+}
 
 // function that calls a collection using imageCollectionLoc, filters based on start
 // and end dates as well as the shapefile input
@@ -55,8 +83,9 @@ var CollectionFilter = function(imageCollectionLoc,filteringShape,startDate,EndD
 {
   var imageGroup = ee.ImageCollection(imageCollectionLoc);
   var filtered = imageGroup.filter(ee.Filter.date(startDate,EndDate)).filter(ee.Filter.bounds(filteringShape));
-  var masked = filtered.map(function(image){return image.clip(domain)});
+  var masked = filtered.map(function(image){return image.clip(domain)});  
   return masked;
+  //return filtered
 };
 
 
@@ -71,24 +100,34 @@ function helperFunction(collection,filtering,start,end,qaBand,band,scale){
   return qaedCollection;
   
 }
-
-
+function SnowHelperFunction(collection,filtering,start,end,qaBand,band,scale){
+  var filtered_collection = CollectionFilter(collection,filtering,start,end);
+  bandNameUpdate(qaBand,band);
+  scalingFactorUpdate(scale);
+  var qaedCollection = filtered_collection.map(qaSnow);
+  var snowmask = qaedCollection.map(snowmasking);
+  return snowmask;
+  
+}
 
 
 
 // testing the functions on the two datasets
-var A3test = helperFunction("MODIS/061/MCD43A3",domain,
-"2020-01-01","2021-01-01","BRDF_Albedo_Band_Mandatory_Quality_Band1","Albedo_BSA_Band1",0.001);
+//var A3test = helperFunction("MODIS/061/MCD43A3",domain,
+//"2020-01-01","2021-01-01","BRDF_Albedo_Band_Mandatory_Quality_Band1","Albedo_BSA_Band1",0.001);
 
-var image =A3test.median();
-var blackSkyAlbedo = scaler(image.select('qa_Albedo_BSA_Band1'));
+//var image =A3test.median();
+//var blackSkyAlbedo = scaler(image.select('qa_Albedo_BSA_Band1'));
 
 
 
 var A1test= helperFunction("MODIS/061/MCD43A1",domain,
 "2020-01-01","2021-01-01","BRDF_Albedo_Band_Mandatory_Quality_Band1","BRDF_Albedo_Parameters_Band1_iso",0.001);
-var image = A1test.median();
+var image = A1test.first();
 var A1BDRF = scaler(image.select('qa_BRDF_Albedo_Parameters_Band1_iso'));
+
+var snow =  SnowHelperFunction("MODIS/061/MOD10A1",domain,
+"2020-01-01","2021-01-01","NDSI_Snow_Cover_Basic_QA","NDSI_Snow_Cover",1);
 
 var blackSkyAlbedoVis = {
   gamma: 1,
@@ -98,7 +137,7 @@ var blackSkyAlbedoVis = {
 };
 
 
-
-Map.addLayer(A1BDRF, blackSkyAlbedoVis, 'iso');
-Map.addLayer(domain, {color: 'blue'}, 'Domain');
-Map.addLayer(blackSkyAlbedo, blackSkyAlbedoVis, 'Black Sky');
+Map.addLayer(snow.first());
+Map.addLayer(A1BDRF.updateMask(snow.first()), blackSkyAlbedoVis, 'iso');
+//Map.addLayer(domain, {color: 'blue'}, 'Domain');
+//Map.addLayer(blackSkyAlbedo, blackSkyAlbedoVis, 'Black Sky');
