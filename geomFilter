@@ -133,6 +133,12 @@ var snow =  SnowHelperFunction("MODIS/061/MOD10A1",domain,
 var snow_aqua =  SnowHelperFunction("MODIS/061/MOD10A1",domain,
 "2020-01-01","2021-01-01","NDSI_Snow_Cover_Basic_QA","NDSI_Snow_Cover",1);
 
+var maskVis = {
+  gamma: 1,
+  max: 1.0,
+  min: 0.0,
+  opacity: 1,
+};
 
 var blackSkyAlbedoVis = {
   gamma: 1,
@@ -144,8 +150,8 @@ var snowbands =snow.first().bandNames();
 
 A1test = A1test.linkCollection(snow,snowbands);
 print(A1test)
-Map.addLayer(snow.first(),{Name:'Terra'});
-Map.addLayer(snow_aqua.first(),{Name:'Aqua'});
+Map.addLayer(snow.first(),maskVis,'Terra');
+Map.addLayer(snow_aqua.first(),maskVis,'Aqua');
 Map.addLayer(A1BDRF.updateMask(snow.first()), blackSkyAlbedoVis, 'iso_mask');
 Map.addLayer(A1BDRF, blackSkyAlbedoVis, 'iso');
 //Map.addLayer(domain, {color: 'blue'}, 'Domain');
