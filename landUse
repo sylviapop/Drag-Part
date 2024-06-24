@@ -9,5 +9,16 @@ var igbpLandCoverVis = {
     '69fff8', 'f9ffa4', '1c0dff'
   ],
 };
+
+function waterMasking(image){
+  var valueMask = image.expression(
+    'thres == value',{
+      'thres':image.select('LC_Type1'),
+      'value':17
+      });
+  return image.updateMask(valueMask)
+}
+var filter = igbpLandCover.map(waterMasking);
 Map.setCenter(6.746, 46.529, 6);
-Map.addLayer(igbpLandCover, igbpLandCoverVis, 'IGBP Land Cover');
+
+Map.addLayer(filter, igbpLandCoverVis, 'IGBP Land Cover')
