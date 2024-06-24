@@ -125,7 +125,7 @@ function SnowHelperFunction(collection,filtering,start,end,qaBand,band,scale){
 
 // testing the functions on the two datasets
 var omega = helperFunction("MODIS/061/MCD43A3",domain,
-"2020-01-01","2021-01-01","BRDF_Albedo_Band_Mandatory_Quality_Band1","Albedo_BSA_Band1",0.001);
+"2015-01-01","2021-01-01","BRDF_Albedo_Band_Mandatory_Quality_Band1","Albedo_BSA_Band1",0.001);
 
 //var image =A3test.median();
 //var blackSkyAlbedo = scaler(image.select('qa_Albedo_BSA_Band1'));
@@ -133,11 +133,11 @@ var omega = helperFunction("MODIS/061/MCD43A3",domain,
 
 
 var f_iso= helperFunction("MODIS/061/MCD43A1",domain,
-"2020-01-01","2021-01-01","BRDF_Albedo_Band_Mandatory_Quality_Band1","BRDF_Albedo_Parameters_Band1_iso",0.001)
+"2015-01-01","2021-01-01","BRDF_Albedo_Band_Mandatory_Quality_Band1","BRDF_Albedo_Parameters_Band1_iso",0.001)
 
 
 var snow =  SnowHelperFunction("MODIS/MCD43A4_006_NDSI",domain,
-"2020-01-01","2021-01-01","NDSI_Snow_Cover_Basic_QA","NDSI",1);
+"2015-01-01","2021-01-01","NDSI_Snow_Cover_Basic_QA","NDSI",1);
 
 var landuse = waterMasking();
 
@@ -149,9 +149,16 @@ var maskVis = {
 };
 
 var blackSkyAlbedoVis = {
-  Palatte:['fde725','5ec962','21918c','3b528b',"440154"],
-  max:0.4,
+  palatte: ['red','yellow','green','blue'],
+  max: 0.4,
   min: 0,
+  opacity: 1,
+};
+
+var velVis = {
+  max: 0.038,
+  min: 0.0,
+  palette: ['green','53713d','e4c7af','tan'],
   opacity: 1,
 };
 
@@ -204,22 +211,24 @@ jointedAlbedo = jointedAlbedo.map(u_ns_calc);
 //Map.addLayer(domain, {color: 'blue'}, 'Domain');
 //Map.addLayer(blackSkyAlbedo, blackSkyAlbedoVis, 'Black Sky');
 
-Map.addLayer(jointedAlbedo.first(),blackSkyAlbedoVis,'Wind Friction Speed');
-Export.image.toDrive(jointedAlbedo,domain);
+//Map.addLayer(jointedAlbedo.first(),velVis,'Wind Friction Speed');
+//Export.image.toDrive(jointedAlbedo,domain);
 
-//var pixel_diff = snow_count.map(function(image){return image.subract(band_test);});
-//var chart = ui.Chart.image.series({
-//  imageCollection:snow.select('snow mask'),
-//  region: domain,
-//  reducer: ee.Reducer.count(),
-//  scale: 500,
-//  xProperty:'system:index'
-//}).setOptions({
-//      lineWidth: 1,
-//      pointSize: 2,
-//      title: 'NDVI Not Missing',
- //     interpolateNulls: true,
- //     vAxis: {title: 'Number of Pixels'},
- //     hAxis: {title: '', format: 'YY-MM'}
-//    });
-//    print(chart)
+//
+
+
+var chart = ui.Chart.image.series({
+  imageCollection:jointedAlbedo,
+  region: domain,
+  reducer: ee.Reducer.mean(),
+  scale: 500,
+  xProperty:'system:index'
+}).setOptions({
+      lineWidth: 1,
+      pointSize: 2,
+      title: 'Normalized Friction Wind speed',
+      interpolateNulls: true,
+      vAxis: {title: 'friction speed'},
+      hAxis: {title: '', format: 'YY-MM'}
+    });
+  print(chart)
