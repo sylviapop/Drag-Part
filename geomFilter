@@ -147,7 +147,6 @@ var blackSkyAlbedoVis = {
   opacity: 1,
 };
 var snowbands =snow.first().bandNames();
-
 A1test = A1test.linkCollection(snow,snowbands);
 print(A1test)
 Map.addLayer(snow.first(),maskVis,'Terra');
@@ -156,3 +155,21 @@ Map.addLayer(A1BDRF.updateMask(snow.first()), blackSkyAlbedoVis, 'iso_mask');
 Map.addLayer(A1BDRF, blackSkyAlbedoVis, 'iso');
 //Map.addLayer(domain, {color: 'blue'}, 'Domain');
 //Map.addLayer(blackSkyAlbedo, blackSkyAlbedoVis, 'Black Sky');
+
+print(domain.first().geometry().area());
+//var pixel_diff = snow_count.map(function(image){return image.subract(band_test);});
+var chart = ui.Chart.image.series({
+  imageCollection:snow.select('snow mask'),
+  region: domain,
+  reducer: ee.Reducer.count(),
+  scale: 500,
+  xProperty:'system:index'
+}).setOptions({
+      lineWidth: 1,
+      pointSize: 2,
+      title: 'BRDF Not Missing',
+      interpolateNulls: true,
+      vAxis: {title: 'Number of Pixels'},
+      hAxis: {title: '', format: 'YY-MM'}
+    });
+    print(chart)
