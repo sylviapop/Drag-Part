@@ -1,0 +1,234 @@
+
+
+// global variables that are used to update names & values in map functions
+var qa_name = "BRDF_Albedo_Band_Mandatory_Quality_Band1";
+var band_name = "Albedo_BSA_Band1";
+var a = 0.001; // set to 1 if no scaling needed
+var qa_snow_name = "NDSI_Snow_Cover_Basic_QA";
+var snow_name = "NDSI";
+var snow_t = 0;
+
+
+// load the domain as global varible since it's used extensively 
+var domainShapeFile = 'projects/gee-project-sylvia/assets/test_domain';
+var domain = ee.FeatureCollection(domainShapeFile);
+
+
+// really bad function that updates the band names because the google earth engine map function won't allow
+// me to update the band names within the mapping functions.... so we do some sketchy things instead
+function bandNameUpdate(qaBand,normalBand)
+{
+  qa_name = qaBand;
+  band_name = normalBand;
+}
+
+
+// updates the scaling factor if needed
+function scalingFactorUpdate(scale)
+{
+  a = scale;
+}
+
+// scales images .. note that you should update the scaling factor before using this
+function scaler(image){
+  return image.multiply(a);
+}
+// bitwise extraction function in ee from https://spatialthoughts.com/2021/08/19/qa-bands-bitmasks-gee/
+var bitwiseExtract = function(input, fromBit, toBit) {
+  var maskSize = ee.Number(1).add(toBit).subtract(fromBit);
+  var mask = ee.Number(1).leftShift(maskSize).subtract(1);
+  return input.rightShift(fromBit).bitwiseAnd(mask);
+};
+
+
+// QA function that only works on band1 from both of these datasets other sats will require other QA functions
+function qa(image){
+  var qaBand = image.select(qa_name);
+  var qaMask = bitwiseExtract(qaBand, 0, 1).eq(0);
+  var band = image.select(band_name).updateMask(qaMask).rename('qa_'+band_name);
+  return image.addBands(band);
+}
+
+//QA function for snow data masks for ocean,night and ok data
+function qaSnow(image){
+  var qaMask = image.expression(
+    // includes good,best and ok data
+    '(QA == 0) || (QA == 1)|| (QA == 2)', {
+      'QA': image.select(qa_snow_name),
+    });
+
+  var band = image.select(snow_name).updateMask(qaMask).rename('qa_'+band_name);
+  return band;
+  
+  
+}
+
+function snowmasking(image){
+  var valueMask = image.expression(
+    'thres < value',{
+      'thres':image.select(snow_name),
+      'value':snow_t
+      
+    })
+    return valueMask.rename('snow mask')
+}
+
+
+
+function waterMasking(){
+  var landuse = ee.ImageCollection('MODIS/061/MCD12Q1').first();
+  var valueMask = landuse.expression(
+    'thres != value',{
+      'thres':landuse.select('LC_Type1'),
+      'value':17
+      });
+  return valueMask.rename('land mask');
+}
+
+
+// function that calls a collection using imageCollectionLoc, filters based on start
+// and end dates as well as the shapefile input
+// then masks the image collection to that shapefile
+var CollectionFilter = function(imageCollectionLoc,filteringShape,startDate,EndDate)
+{
+  var imageGroup = ee.ImageCollection(imageCollectionLoc);
+  var filtered = imageGroup.filter(ee.Filter.date(startDate,EndDate)).filter(ee.Filter.bounds(filteringShape));
+  var masked = filtered.map(function(image){return image.clip(domain)});  
+  return masked;
+  //return filtered
+};
+
+
+
+// pulls all the functions into a single thing that is callible
+function helperFunction(collection,filtering,start,end,qaBand,band,scale){
+  var filtered_collection = CollectionFilter(collection,filtering,start,end);
+  bandNameUpdate(qaBand,band);
+  scalingFactorUpdate(scale);
+  var qaedCollection = filtered_collection.map(qa);
+  var scaled_collection = qaedCollection.map(scaler);
+  return scaled_collection.select('qa_'+band);
+  
+}
+function SnowHelperFunction(collection,filtering,start,end,qaBand,band,scale){
+  var filtered_collection = CollectionFilter(collection,filtering,start,end);
+  //bandNameUpdate(qaBand,band);
+ // scalingFactorUpdate(scale);
+  //var qaedCollection = filtered_collection.map(qaSnow);
+  var snowmask = filtered_collection.map(snowmasking);
+  return snowmask;
+  
+}
+
+
+
+
+// testing the functions on the two datasets
+var omega = helperFunction("MODIS/061/MCD43A3",domain,
+"2010-01-01","2021-01-01","BRDF_Albedo_Band_Mandatory_Quality_Band1","Albedo_BSA_Band1",0.001);
+
+//var image =A3test.median();
+//var blackSkyAlbedo = scaler(image.select('qa_Albedo_BSA_Band1'));
+
+
+
+var f_iso= helperFunction("MODIS/061/MCD43A1",domain,
+"2010-01-01","2021-01-01","BRDF_Albedo_Band_Mandatory_Quality_Band1","BRDF_Albedo_Parameters_Band1_iso",0.001)
+
+
+var snow =  SnowHelperFunction("MODIS/MCD43A4_006_NDSI",domain,
+"2010-01-01","2021-01-01","NDSI_Snow_Cover_Basic_QA","NDSI",1);
+
+var landuse = waterMasking();
+
+var maskVis = {
+  max: 1.0,
+  min: 0.0,
+  palette: ['red', 'white'],
+  opacity: 1,
+};
+
+var blackSkyAlbedoVis = {
+  palatte: ['red','yellow','green','blue'],
+  max: 0.4,
+  min: 0,
+  opacity: 1,
+};
+
+var velVis = {
+  max: 0.038,
+  min: 0.0,
+  palette: ['green','53713d','e4c7af','tan'],
+  opacity: 1,
+};
+
+function maskApplier(image){
+  image= image.updateMask(landuse);
+  image= image.updateMask(snow.first());
+  return image;
+}
+omega=omega.map(maskApplier);
+f_iso=f_iso.map(maskApplier);
+
+var jointedAlbedo = f_iso.combine(omega);
+
+function omega_n_calc(image){
+  return image.expression(
+    '(1-omega)/f_iso',{
+      'omega':image.select('qa_Albedo_BSA_Band1'),
+      'f_iso':image.select('qa_BRDF_Albedo_Parameters_Band1_iso')
+      
+    }).rename('omega_n');
+    
+}
+
+function omega_ns_calc(image){
+  return image.expression(
+    '(((c-d)*(omega_n-35))/-35)+d',{
+      'c':0.0001,
+      'd':0.1,
+      'omega_n':image.select('omega_n')
+    }).rename('omega_ns');
+}
+function u_ns_calc(image){
+  var inner = image.expression(
+    '0.0311*(exp**((-1.0*omega_ns**1.131)/0.016)+0.007)',{
+      'omega_ns':image.select('omega_ns'),
+      'exp':2.718281
+    });
+    return inner.rename('u_ns');
+}
+
+jointedAlbedo = jointedAlbedo.map(omega_n_calc);
+jointedAlbedo = jointedAlbedo.map(omega_ns_calc);
+jointedAlbedo = jointedAlbedo.map(u_ns_calc);
+
+
+
+//Map.addLayer(jointAlbedos,maskVis,'Land Mask')
+//Map.addLayer(A3test, blackSkyAlbedoVis, 'A3');
+//Map.addLayer(A1test, blackSkyAlbedoVis, 'A1');
+//Map.addLayer(domain, {color: 'blue'}, 'Domain');
+//Map.addLayer(blackSkyAlbedo, blackSkyAlbedoVis, 'Black Sky');
+
+//Map.addLayer(jointedAlbedo.first(),velVis,'Wind Friction Speed');
+//Export.image.toDrive(jointedAlbedo,domain);
+
+//
+
+
+var chart = ui.Chart.image.series({
+  imageCollection:jointedAlbedo,
+  region: domain,
+  reducer: ee.Reducer.mean(),
+  scale: 500,
+  xProperty:'system:index'
+}).setOptions({
+      lineWidth: 1,
+      pointSize: 2,
+      title: 'Normalized Friction Wind speed',
+      interpolateNulls: true,
+      vAxis: {title: 'friction speed'},
+      hAxis: {title: '', format: 'YY-MM'}
+    });
+  print(chart)
