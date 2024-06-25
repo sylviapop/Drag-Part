@@ -222,8 +222,33 @@ jointedAlbedo_late = jointedAlbedo_late.map(u_ns_calc);
 jointedAlbedo_late = jointedAlbedo_late.median();
 
 var change = jointedAlbedo_early.subtract(jointedAlbedo_late);
-print(change);
-Map.addLayer(change,maskVis,'Change in Friction');
+
+//Map.addLayer(change,maskVis,'Change in Friction');
+// Output file name prefix
+var fnp = 'DragPartition';
+// Export parameters
+var pxLen = 500;               // Output pixel size (m)
+var	proj = 'EPSG:4326';        // WGS84 Geographic
+var fileFormat = 'GeoTIFF';
+var tileArea = 2560;           // Max tile size (pixels) - must be multiple of shard size
+var shards = 256;              // Max tile size / 10
+var maxPix = 10000000000000;   // Max image size (not file size)
+// Export albedo
+Export.image.toDrive({
+  image: change,
+  description: fnp,
+  region: domain,
+  fileNamePrefix: fnp + '_change_in_friction',
+  scale: pxLen,
+  crs: proj,
+  maxPixels: maxPix,
+  shardSize: shards,
+  fileDimensions: tileArea,
+  skipEmptyTiles: true,        // Exclude masked areas in tiled output
+  fileFormat: fileFormat,
+});
+
+
 //Map.addLayer(A3test, blackSkyAlbedoVis, 'A3');
 //Map.addLayer(A1test, blackSkyAlbedoVis, 'A1');
 //Map.addLayer(domain, {color: 'blue'}, 'Domain');
