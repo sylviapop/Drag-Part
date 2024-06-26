@@ -1,11 +1,12 @@
 // load the domain as global varible since it's used extensively 
-var domainShapeFile = 'projects/gee-project-sylvia/assets/DragPartition_change_in_friction';
-var domain = ee.Image(domainShapeFile);
+var changeFile = 'projects/gee-project-sylvia/assets/DragPartition_change_in_friction';
+var change = ee.Image(changeFile);
 
 var maskVis = {
-  max: 0.05,
-  min: -0.05,
+  max: 0.005,
+  min: -0.005,
   palette: ['red', 'white','blue'],
   opacity: 1,
 };
 
+Map.addLayer(change,maskVis,'Change in Friction');
