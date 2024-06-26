@@ -2,4 +2,10 @@
 var domainShapeFile = 'projects/gee-project-sylvia/assets/DragPartition_change_in_friction';
 var domain = ee.Image(domainShapeFile);
 
+var maskVis = {
+  max: 0.05,
+  min: -0.05,
+  palette: ['red', 'white','blue'],
+  opacity: 1,
+};
 
