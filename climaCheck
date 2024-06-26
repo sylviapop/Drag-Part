@@ -3,10 +3,13 @@
 // global variables that are used to update names & values in map functions
 var qa_name = "BRDF_Albedo_Band_Mandatory_Quality_Band1";
 var band_name = "Albedo_BSA_Band1";
-var a = 0.001; // set to 1 if no scaling needed
+var s = 0.001; // set to 1 if no scaling needed
 var qa_snow_name = "NDSI_Snow_Cover_Basic_QA";
 var snow_name = "NDSI";
 var snow_t = 0;
+
+// startTime = 
+//var endTime = 
 
 
 // load the domain as global varible since it's used extensively 
@@ -26,12 +29,12 @@ function bandNameUpdate(qaBand,normalBand)
 // updates the scaling factor if needed
 function scalingFactorUpdate(scale)
 {
-  a = scale;
+  s = scale;
 }
 
 // scales images .. note that you should update the scaling factor before using this
 function scaler(image){
-  return image.multiply(a);
+  return image.multiply(s);
 }
 // bitwise extraction function in ee from https://spatialthoughts.com/2021/08/19/qa-bands-bitmasks-gee/
 var bitwiseExtract = function(input, fromBit, toBit) {
@@ -127,16 +130,10 @@ function SnowHelperFunction(collection,filtering,start,end,qaBand,band,scale){
 var omega_late = helperFunction("MODIS/061/MCD43A3",domain,
 "2015-02-24","2020-02-24","BRDF_Albedo_Band_Mandatory_Quality_Band1","Albedo_BSA_Band1",0.001);
 var f_iso_late= helperFunction("MODIS/061/MCD43A1",domain,
-"2015-02-24","2020-02-24","BRDF_Albedo_Band_Mandatory_Quality_Band1","BRDF_Albedo_Parameters_Band1_iso",0.001)
+"2015-02-24","2020-02-24","BRDF_Albedo_Band_Mandatory_Quality_Band1","BRDF_Albedo_Parameters_Band1_iso",0.001);
 var snow_late =  SnowHelperFunction("MODIS/MCD43A4_006_NDSI",domain,
 "2015-02-24","2020-02-24","NDSI_Snow_Cover_Basic_QA","NDSI",1);
 
-var omega_early = helperFunction("MODIS/061/MCD43A3",domain,
-"2000-02-24","2005-02-24","BRDF_Albedo_Band_Mandatory_Quality_Band1","Albedo_BSA_Band1",0.001);
-var f_iso_early= helperFunction("MODIS/061/MCD43A1",domain,
-"2000-02-24","2005-02-24","BRDF_Albedo_Band_Mandatory_Quality_Band1","BRDF_Albedo_Parameters_Band1_iso",0.001)
-var snow_early =  SnowHelperFunction("MODIS/MCD43A4_006_NDSI",domain,
-"2000-02-24","2005-02-24","NDSI_Snow_Cover_Basic_QA","NDSI",1);
 
 var landuse = waterMasking();
 
