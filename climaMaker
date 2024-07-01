@@ -152,7 +152,7 @@ function u_ns_calc(image){
 }
 
 
-
+for
 
 var omega = helperAlb("MODIS/061/MCD43A3",domain,
 startDate,endDate,"BRDF_Albedo_Band_Mandatory_Quality_Band1","Albedo_BSA_Band1",0.001);
