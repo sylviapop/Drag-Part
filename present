@@ -9,6 +9,9 @@ var snow_name = "NDSI";
 var snow_t = 0;
 var domainShapeFile = "projects/gee-project-sylvia/assets/test_domain";
 var LandUseCollection = "MODIS/061/MCD12Q1";
+var omegaName = "MODIS/061/MCD43A3";
+var f_isoName= "MODIS/061/MCD43A1";
+var snowDBname = "MODIS/MCD43A4_006_NDSI";
 var startDate ="2022-05-01";
 var endDate = "2022-06-01";
 
@@ -154,12 +157,11 @@ function u_ns_calc(image){
 
 
 
-
-var omega = helperAlb("MODIS/061/MCD43A3",domain,
+var omega = helperAlb(omegaName,domain,
 startDate,endDate,"BRDF_Albedo_Band_Mandatory_Quality_Band1","Albedo_BSA_Band1",0.001);
-var f_iso= helperAlb("MODIS/061/MCD43A1",domain,
+var f_iso= helperAlb(f_iso_name,domain,
 startDate,endDate,"BRDF_Albedo_Band_Mandatory_Quality_Band1","BRDF_Albedo_Parameters_Band1_iso",0.001);
-var snow =  helperSnow("MODIS/MCD43A4_006_NDSI",domain,
+var snow =  helperSnow(snowDBname,domain,
 startDate,endDate,"NDSI_Snow_Cover_Basic_QA","NDSI",1);
 
 var landuse = waterMasking();
