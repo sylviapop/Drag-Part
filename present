@@ -176,8 +176,9 @@ f_iso=f_iso.map(landUseMask);
 
 // combines black sky albedo a& BDRF into a single dataset
 var jointedAlbedo = f_iso.combine(omega);
-// adds the snow mask to the 
+// adds the snow mask to the combined dataset
 jointedAlbedo = jointedAlbedo.combine(snow);
+// masks the snow data to the 
 jointedAlbedo = jointedAlbedo.map(snowMapper).select('qa_BRDF_Albedo_Parameters_Band1_iso','qa_Albedo_BSA_Band1');
 jointedAlbedo = jointedAlbedo.map(omega_n_calc);
 jointedAlbedo = jointedAlbedo.map(omega_ns_calc);
