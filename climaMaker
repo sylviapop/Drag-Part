@@ -159,11 +159,11 @@ function calc_diff_sq(image){
   return diff;
 }
 
+//
 
-
-for (let i = 2000; i < 2021; i++){
+for (i = 2000; i < 2021; i++){
   startdate = str(i)+"-05-01";
-  var endDate = str(i)+"-06-01";
+  endDate = str(i)+"-06-01";
 
 // loads the values from the image collections respectively
   var omega = helperAlb(omegaName,domain,
