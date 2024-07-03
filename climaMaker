@@ -194,13 +194,13 @@ for (var i = 2000; i < 2021; i++){
   jointedAlbedo = jointedAlbedo.map(omega_ns_calc);
   jointedAlbedo = jointedAlbedo.map(u_ns_calc);
   // takes the median value of the time period
-  var fric_min = jointedAlbedo.min();
-  var fric_max = jointedAlbedo.max();
-  var fric_mean = jointedAlbedo.mean();
-  var fric_median = jointedAlbedo.median();
+  var fric_min = jointedAlbedo.min().rename("Min");
+  var fric_max = jointedAlbedo.max().rename("Max");
+  var fric_mean = jointedAlbedo.mean().rename("Mean");
+  var fric_median = jointedAlbedo.median().rename("Median");
   var friction_diff_sq = jointedAlbedo.map(calc_diff_sq);
-  var fric_sqrt = friction_diff_sq.mean().sqrt();
-  var fric_count = jointedAlbedo.count();
+  var fric_sqrt = friction_diff_sq.mean().sqrt().rename("Sqt");
+  var fric_count = jointedAlbedo.count().rename("Count");
   
   
   
