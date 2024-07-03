@@ -178,13 +178,15 @@ f_iso=f_iso.map(landUseMask);
 var jointedAlbedo = f_iso.combine(omega);
 // adds the snow mask to the combined dataset
 jointedAlbedo = jointedAlbedo.combine(snow);
-// masks the snow data to the 
+// masks the BRDF & BSA wit snow data
 jointedAlbedo = jointedAlbedo.map(snowMapper).select('qa_BRDF_Albedo_Parameters_Band1_iso','qa_Albedo_BSA_Band1');
+// calls the 3 calculation functions
 jointedAlbedo = jointedAlbedo.map(omega_n_calc);
 jointedAlbedo = jointedAlbedo.map(omega_ns_calc);
 jointedAlbedo = jointedAlbedo.map(u_ns_calc);
+// takes the median value of the time period
 jointedAlbedo = jointedAlbedo.median();
-// quick colormap for the map
+// quick colormap 
 var velVis = {
   max: 0.038,
   min: 0.0,
