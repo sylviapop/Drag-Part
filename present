@@ -184,12 +184,12 @@ jointedAlbedo = jointedAlbedo.map(omega_n_calc);
 jointedAlbedo = jointedAlbedo.map(omega_ns_calc);
 jointedAlbedo = jointedAlbedo.map(u_ns_calc);
 jointedAlbedo = jointedAlbedo.median();
-// quick colormap for the 
+// quick colormap for the map
 var velVis = {
   max: 0.038,
   min: 0.0,
   palette: ['green','53713d','e4c7af','tan'],
   opacity: 0.9,
 };
-
+// adds the data to the interactive map
 Map.addLayer(jointedAlbedo,velVis,'Wind Friction Speed');
