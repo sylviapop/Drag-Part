@@ -156,7 +156,7 @@ function u_ns_calc(image){
 }
 
 
-
+// loads the values from the image collections respectively
 var omega = helperAlb(omegaName,domain,
 startDate,endDate,"BRDF_Albedo_Band_Mandatory_Quality_Band1","Albedo_BSA_Band1",0.001);
 var f_iso= helperAlb(f_iso_name,domain,
@@ -164,15 +164,19 @@ startDate,endDate,"BRDF_Albedo_Band_Mandatory_Quality_Band1","BRDF_Albedo_Parame
 var snow =  helperSnow(snowDBname,domain,
 startDate,endDate,"NDSI_Snow_Cover_Basic_QA","NDSI",1);
 
+
+// creates the land use mask
 var landuse = waterMasking();
 
 
 
-
+// applies the land use mask to both BDRF & BSA
 omega=omega.map(landUseMask);
 f_iso=f_iso.map(landUseMask);
 
+// combines black sky albedo a& BDRF into a single dataset
 var jointedAlbedo = f_iso.combine(omega);
+// adds the snow mask to the 
 jointedAlbedo = jointedAlbedo.combine(snow);
 jointedAlbedo = jointedAlbedo.map(snowMapper).select('qa_BRDF_Albedo_Parameters_Band1_iso','qa_Albedo_BSA_Band1');
 jointedAlbedo = jointedAlbedo.map(omega_n_calc);
