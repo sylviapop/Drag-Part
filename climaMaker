@@ -162,7 +162,7 @@ function calc_diff_sq(image){
 //
 
 for (var i = 2000; i < 2021; i++){
-  var startdate = i.toString() +"-05-01";
+  var startDate = i.toString() +"-05-01";
   var endDate = i.toString() +"-06-01";
 
 // loads the values from the image collections respectively
@@ -200,12 +200,35 @@ for (var i = 2000; i < 2021; i++){
   var fric_median = jointedAlbedo.median().rename("Median");
   var friction_diff_sq = jointedAlbedo.map(calc_diff_sq);
   var fric_sqrt = friction_diff_sq.mean().sqrt().rename("Sqt");
-  var fric_count = jointedAlbedo.count().rename("Count");
-  var combined = fric_min.cat(fric_max);
-  combined = combined.cat(fric_mean);
-  combined = combined.cat(fric_median);
-  combined = combined.cat(fric_sqrt);
-  combined = combined.cat(fric_count);
+  var fric_count = jointedAlbedo.count().rename("Count").toDouble();
+  print(fric_min);
+  var combined = ee.Image.cat(fric_min,fric_max,fric_mean,fric_median,fric_sqrt,fric_count);
+//  combined = combined.cat(fric_mean);
+//  combined = combined.cat(fric_median);
+//  combined = combined.cat(fric_sqrt);
+//  combined = combined.cat(fric_count);
+  print(combined)
+  // EXPORT
+  var fnp = "May_"+i.toString()+"_clima"
+  var pxLen = 500;               // output pixel size (m)
+  var	proj = 'EPSG:4326';        // WGS84 Geographic
+  var fileFormat = 'GeoTIFF';
+  var tileArea = 2560;           // max file size (pixels); must be multiple of shard size
+  var shards = 256;              // unclear how this works/scales
+  var maxPix = 10000000000000;   // max image size (not file size)
+  Export.image.toDrive({         // geoTIFF
+  image: combined,                  //
+  description: fnp,            // 
+  fileNamePrefix: fnp,   // 
+  scale: pxLen,                // 30 m
+  crs: proj,                   // WGS-84 Geographic
+  maxPixels: maxPix,           // some huge, largely irrelevant number
+  shardSize: shards,           // 256  (tile size / 10)
+  fileDimensions: tileArea,    // 2560 (tile size)
+  skipEmptyTiles: true,        // exclude masked areas in tiled output automatically
+  fileFormat: fileFormat,      // geotiff
+});
+
   
   
   
