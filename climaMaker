@@ -161,7 +161,7 @@ function calc_diff_sq(image){
 
 
 
-for  (let i = 2000; i < 2021; i++){
+for (let i = 2000; i < 2021; i++){
   startdate = str(i)+"-05-01";
   var endDate = str(i)+"-06-01";
 
