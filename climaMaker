@@ -153,6 +153,14 @@ function u_ns_calc(image){
     return inner.rename('u_ns');
 }
 
+function calc_diff_sq(image){
+  var diff =image.subtract(fric_mean);
+  diff = dif.pow(2);
+  return diff;
+}
+
+
+
 for  (let i = 2000; i < 2021; i++){
   startdate = str(i)+"-05-01";
   var endDate = str(i)+"-06-01";
@@ -188,8 +196,14 @@ for  (let i = 2000; i < 2021; i++){
   // takes the median value of the time period
   var fric_min = jointedAlbedo.min();
   var fric_max = jointedalbedo.max();
-  var fric_mean = jointedAlbedo.mean()
+  var fric_mean = jointedAlbedo.mean();
   var fric_median = jointedAlbedo.median();
-  var friction_
+  var friction_diff_sq = jointedAlbedo.map(calc_diff_sq);
+  var fric_sqrt = friction_diff_sq.mean().sqrt();
+  var fric_count = jointedAlbedo.count();
+  
+  
+  
+  
 }
 // quick colormap 
