@@ -155,20 +155,20 @@ function u_ns_calc(image){
 
 function calc_diff_sq(image){
   var diff =image.subtract(fric_mean);
-  diff = dif.pow(2);
+  diff = diff.pow(2);
   return diff;
 }
 
 //
 
-for (i = 2000; i < 2021; i++){
-  startdate = str(i)+"-05-01";
-  endDate = str(i)+"-06-01";
+for (var i = 2000; i < 2021; i++){
+  var startdate = i.toString() +"-05-01";
+  var endDate = i.toString() +"-06-01";
 
 // loads the values from the image collections respectively
   var omega = helperAlb(omegaName,domain,
   startDate,endDate,"BRDF_Albedo_Band_Mandatory_Quality_Band1","Albedo_BSA_Band1",0.001);
-  var f_iso= helperAlb(f_iso_name,domain,
+  var f_iso= helperAlb(f_isoName,domain,
   startDate,endDate,"BRDF_Albedo_Band_Mandatory_Quality_Band1","BRDF_Albedo_Parameters_Band1_iso",0.001);
   var snow =  helperSnow(snowDBname,domain,
   startDate,endDate,"NDSI_Snow_Cover_Basic_QA","NDSI",1);
@@ -195,7 +195,7 @@ for (i = 2000; i < 2021; i++){
   jointedAlbedo = jointedAlbedo.map(u_ns_calc);
   // takes the median value of the time period
   var fric_min = jointedAlbedo.min();
-  var fric_max = jointedalbedo.max();
+  var fric_max = jointedAlbedo.max();
   var fric_mean = jointedAlbedo.mean();
   var fric_median = jointedAlbedo.median();
   var friction_diff_sq = jointedAlbedo.map(calc_diff_sq);
