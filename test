@@ -1,5 +1,4 @@
-var collection = ee.ImageCollection('MODIS/061/MOD15A2H')
-                  .filterDate('2019-01-01', '2019-10-01');
+var collection = ee.Image('SE_Asia_clima')
 
 var colorizedVis = {
   min: 0,
@@ -10,7 +9,7 @@ var colorizedVis = {
     '012e01', '011d01', '011301'
   ],
 };
-
+print(collection);
 Map.setCenter(-10.88, 40.94, 2);
 Map.addLayer(collection.select('Lai_500m'), colorizedVis, 'Lai');
 Map.addLayer(collection.select('Fpar_500m'), colorizedVis, 'Fpar');
