@@ -209,6 +209,7 @@ for (var i = 2018; i < 2019; i++){
 //  combined = combined.cat(fric_count);
   print(combined)
   // EXPORT
+/*  
   var fnp = "SE_Asia_clima"
   var pxLen = 500;               // output pixel size (m)
   var	proj = 'EPSG:4326';        // WGS84 Geographic
@@ -227,11 +228,10 @@ for (var i = 2018; i < 2019; i++){
   fileDimensions: tileArea,    // 2560 (tile size)
   skipEmptyTiles: true,        // exclude masked areas in tiled output automatically
   fileFormat: fileFormat,      // geotiff
+  region: domain,
 });
 print(combined)
 //Map.addLayer(fric_sqrt)
-
-  
-  
-  
+*/
 }
+Export.image.toAsset({image:combined,maxPixels:10000000000000})
