@@ -13,7 +13,7 @@ var colorizedVis = {
 //Map.addLayer(image.select('Count'),colorizedVis,"test");
 //Map.addLayer(domain);
 
- var fnp = "SE_AsiaOutputMin";
+ var fnp = "SE_AsiaOutputMean";
   var pxLen = 500;               // output pixel size (m)
   var	proj = 'EPSG:4326';        // WGS84 Geographic
   var fileFormat = 'GeoTIFF';
@@ -21,7 +21,7 @@ var colorizedVis = {
   var shards = 512;              // unclear how this works/scales
   var maxPix = 10000000000000;   // max image size (not file size)
   Export.image.toDrive({         // geoTIFF
-  image: image.select('Min'),                  //
+  image: image.select('Mean'),                  //
   description: fnp,            // 
   fileNamePrefix: fnp,   // 
   scale: pxLen,                // 500 m
