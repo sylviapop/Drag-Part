@@ -5,7 +5,7 @@ var s = 0.001; // set to 1 if no scaling needed
 var qa_snow_name = "NDSI_Snow_Cover_Basic_QA";
 var snow_name = "NDSI";
 var snow_t = 0;
-var domainShapeFile = "projects/gee-project-sylvia/assets/test_domain";
+var domainShapeFile = "projects/gee-project-sylvia/assets/SEasia";
 var LandUseCollection = "MODIS/061/MCD12Q1";
 var omegaName = "MODIS/061/MCD43A3";
 var f_isoName= "MODIS/061/MCD43A1";
@@ -161,9 +161,9 @@ function calc_diff_sq(image){
 
 //
 
-for (var i = 2000; i < 2021; i++){
-  var startDate = i.toString() +"-05-01";
-  var endDate = i.toString() +"-06-01";
+for (var i = 2018; i < 2019; i++){
+  var startDate = i.toString() +"-07-15";
+  var endDate = i.toString() +"-08-03";
 
 // loads the values from the image collections respectively
   var omega = helperAlb(omegaName,domain,
@@ -209,7 +209,7 @@ for (var i = 2000; i < 2021; i++){
 //  combined = combined.cat(fric_count);
   print(combined)
   // EXPORT
-  var fnp = "May_"+i.toString()+"_clima"
+  var fnp = "SE_Asia_clima"
   var pxLen = 500;               // output pixel size (m)
   var	proj = 'EPSG:4326';        // WGS84 Geographic
   var fileFormat = 'GeoTIFF';
