@@ -10,5 +10,6 @@ var colorizedVis = {
   ],
 };
 print(domain);
-Map.addLayer(image.select('b1'),colorizedVis,"test");
+Map.addLayer(image.select('Count'),colorizedVis,"test");
 Map.addLayer(domain);
+Export.image.toDrive(image)
