@@ -1,0 +1,15 @@
+var domain = ee.FeatureCollection('projects/gee-project-sylvia/assets/SEasia');
+var image = ee.Image('projects/gee-project-sylvia/assets/SEasiaClimaAlt');
+var colorizedVis = {
+  min: 0,
+  max: .039,
+  palette: [
+    'ffffff', 'ce7e45', 'df923d', 'f1b555', 'fcd163', '99b718', '74a901',
+    '66a000', '529400', '3e8601', '207401', '056201', '004c00', '023b01',
+    '012e01', '011d01', '011301'
+  ],
+};
+print(domain);
+Map.addLayer(image.select('Min'),colorizedVis,"test");
+Map.addLayer(domain);
+Export.image.toDrive({image:image,maxPixels:10000000000000})
