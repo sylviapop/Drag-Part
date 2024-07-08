@@ -1,15 +1,21 @@
 var domain = ee.FeatureCollection('projects/gee-project-sylvia/assets/SEasia');
 var image = ee.Image('projects/gee-project-sylvia/assets/SEasiaClimaAlt');
-var colorizedVis = {
-  min: 0,
-  max: .039,
-  palette: [
-    'ffffff', 'ce7e45', 'df923d', 'f1b555', 'fcd163', '99b718', '74a901',
-    '66a000', '529400', '3e8601', '207401', '056201', '004c00', '023b01',
-    '012e01', '011d01', '011301'
-  ],
+
+
+ee.ImageCollection("COPERNICUS/S5P/NRTI/L3_AER_AI")
+
+
+var collection = ee.ImageCollection('COPERNICUS/S5P/NRTI/L3_AER_AI')
+  .filterDate('2018-07-15', '2018-08-03');
+print(collection)
+var band_viz = {
+  min: -1,
+  max: 2.0,
+  palette: ['black', 'blue', 'purple', 'cyan', 'green', 'yellow', 'red']
 };
-print(domain);
-Map.addLayer(image.select('Min'),colorizedVis,"test");
-Map.addLayer(domain);
-Export.image.toDrive({image:image,maxPixels:10000000000000})
+
+Map.addLayer(collection.select('absorbing_aerosol_index').mosaic(), band_viz, 'S5P Aerosol');
+//Map.setCenter(-118.82, 36.1, 5);
+//print(domain);
+//Map.addLayer(image.select('Min'),colorizedVis,"test");
+//M//ap.addLayer(domain);
