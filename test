@@ -10,9 +10,9 @@ var colorizedVis = {
   ],
 };
 //print(domain);
-//Map.addLayer(image.select('Count'),colorizedVis,"test");
+Map.addLayer(image.select('Median'),colorizedVis,"test");
 //Map.addLayer(domain);
-
+/*
  var fnp = "SE_AsiaOutputMean";
   var pxLen = 500;               // output pixel size (m)
   var	proj = 'EPSG:4326';        // WGS84 Geographic
@@ -33,3 +33,4 @@ var colorizedVis = {
   fileFormat: fileFormat,      // geotiff
   region: domain,
   });
+*/  
