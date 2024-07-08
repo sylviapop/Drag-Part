@@ -1,5 +1,5 @@
 var domain = ee.FeatureCollection('projects/gee-project-sylvia/assets/SEasia');
-var image = ee.Image('projects/gee-project-sylvia/assets/SE_Asia_clima');
+var image = ee.Image('projects/gee-project-sylvia/assets/SEasiaClimaAlt');
 var colorizedVis = {
   min: 0,
   max: .039,
