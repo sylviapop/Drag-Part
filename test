@@ -1,5 +1,5 @@
-var collection = ee.Geometry('projects/gee-project-sylvia/assets/SE_Asia')
-
+var domain = ee.FeatureCollection('projects/gee-project-sylvia/assets/SEasia');
+var image = ee.Image('projects/gee-project-sylvia/assets/SE_Asia_clima');
 var colorizedVis = {
   min: 0,
   max: .039,
@@ -9,6 +9,6 @@ var colorizedVis = {
     '012e01', '011d01', '011301'
   ],
 };
-print(collection);
-
-//Map.addLayer(collection.select('b1'), colorizedVis, 'Lai');
+print(image);
+Map.addLayer(image.select('b1'),colorizedVis,"test");
+Map.addLayer(domain);
