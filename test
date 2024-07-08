@@ -1,8 +1,8 @@
-var collection = ee.Image('SE_Asia_clima')
+var collection = ee.Geometry('projects/gee-project-sylvia/assets/SE_Asia')
 
 var colorizedVis = {
   min: 0,
-  max: 100,
+  max: .039,
   palette: [
     'ffffff', 'ce7e45', 'df923d', 'f1b555', 'fcd163', '99b718', '74a901',
     '66a000', '529400', '3e8601', '207401', '056201', '004c00', '023b01',
@@ -10,6 +10,5 @@ var colorizedVis = {
   ],
 };
 print(collection);
-Map.setCenter(-10.88, 40.94, 2);
-Map.addLayer(collection.select('Lai_500m'), colorizedVis, 'Lai');
-Map.addLayer(collection.select('Fpar_500m'), colorizedVis, 'Fpar');
+
+//Map.addLayer(collection.select('b1'), colorizedVis, 'Lai');
