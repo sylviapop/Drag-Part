@@ -1,0 +1,215 @@
+// global variables that are used to update names,date & values in map functions
+var qa_name = "BRDF_Albedo_Band_Mandatory_Quality_Band1";
+var band_name = "Albedo_BSA_Band1";
+var s = 0.001; // set to 1 if no scaling needed
+var qa_snow_name = "NDSI_Snow_Cover_Basic_QA";
+var snow_name = "NDSI";
+var snow_t = 0;
+var domainShapeFile = "projects/gee-project-sylvia/assets/SEasia";
+var LandUseCollection = "MODIS/061/MCD12Q1";
+var omegaName = "MODIS/061/MCD43A3";
+var f_isoName= "MODIS/061/MCD43A1";
+var snowDBname = "MODIS/MCD43A4_006_NDSI";
+//var startDate ="2022-05-01";
+//var endDate = "2022-06-01";
+
+
+// load the domain as global varible since it's used extensively 
+
+var domain = ee.FeatureCollection(domainShapeFile);
+
+
+// really bad function that updates the band names because the google earth engine map function won't allow
+// me to update the band names within the mapping functions.... so we do some sketchy things instead
+function bandNameUpdate(qaBand,normalBand)
+{
+  qa_name = qaBand;
+  band_name = normalBand;
+}
+
+function domainUpdate(fileName){
+  domainShapeFile = fileName;
+}
+
+// updates the scaling factor if needed
+function scalingFactorUpdate(scale)
+{
+  s = scale;
+}
+
+// scales images .. note that you should update the scaling factor before using this
+function scaler(image){
+  return image.multiply(s);
+}
+// bitwise extraction function in ee from https://spatialthoughts.com/2021/08/19/qa-bands-bitmasks-gee/
+var bitwiseExtract = function(input, fromBit, toBit) {
+  var maskSize = ee.Number(1).add(toBit).subtract(fromBit);
+  var mask = ee.Number(1).leftShift(maskSize).subtract(1);
+  return input.rightShift(fromBit).bitwiseAnd(mask);
+};
+
+
+// QA function that only works on band1 from both of these datasets other sats will require other QA functions
+function qaAlb(image){
+  var qaBand = image.select(qa_name);
+  var qaMask = bitwiseExtract(qaBand, 0, 1).eq(0);
+  var band = image.select(band_name).rename('qa_'+band_name);//.updateMask(qaMask); turned off for check
+  return image.addBands(band);
+}
+// Creates the mask for snow NSDI
+// note that this value isn't by default as it is in the documentaitons
+function snowMasking(image){
+  var valueMask = image.expression(
+    'thres < value',{
+      'thres':image.select(snow_name),
+      'value':snow_t
+      
+    })
+    return valueMask.rename('snow mask')
+}
+
+// creates the mask for locations of water
+function waterMasking(){
+  var landuse = ee.ImageCollection(LandUseCollection).first();
+  var valueMask = landuse.expression(
+    'thres != value',{
+      'thres':landuse.select('LC_Type1'),
+      'value':17
+      });
+  return valueMask.rename('land mask');
+}
+
+
+// function that calls a collection using imageCollectionLoc, filters based on start
+// and end dates as well as the shapefile input
+// then masks the image collection to that shapefile
+var CollectionFilter = function(imageCollectionLoc,filteringShape,startDate,EndDate)
+{
+  var imageGroup = ee.ImageCollection(imageCollectionLoc);
+  var filtered = imageGroup.filter(ee.Filter.date(startDate,EndDate)).filter(ee.Filter.bounds(filteringShape));
+  var masked = filtered.map(function(image){return image.clip(domain)});  
+  return masked;
+  //return filtered
+};
+
+
+
+// pulls all the functions into a single thing that is callible
+function helperAlb(collection,filtering,start,end,qaBand,band,scale){
+  var filtered_collection = CollectionFilter(collection,filtering,start,end);
+  bandNameUpdate(qaBand,band);
+  scalingFactorUpdate(scale);
+  var qaedCollection = filtered_collection.map(qaAlb);
+  var scaled_collection = qaedCollection.map(scaler);
+  return scaled_collection.select('qa_'+band);
+  
+}
+// Applies the snow masking to the collection
+function helperSnow(collection,filtering,start,end,qaBand,band,scale){
+  var filtered_collection = CollectionFilter(collection,filtering,start,end);
+  //bandNameUpdate(qaBand,band);
+ // scalingFactorUpdate(scale);
+  //var qaedCollection = filtered_collection.map(qaSnow);
+  var snowmask = filtered_collection.map(snowMasking);
+  return snowmask;
+  
+}
+
+
+function landUseMask(image){
+  image= image.updateMask(landuse);
+  return image;
+}
+
+function snowMapper(image){
+  image.updateMask(image.select('snow_mask'));
+  return image;
+  
+}
+
+function omega_n_calc(image){
+  return image.expression(
+    '(1-omega)/f_iso',{
+      'omega':image.select('qa_Albedo_BSA_vis'),
+      'f_iso':image.select('qa_BRDF_Albedo_Parameters_Band1_iso')
+      
+    }).rename('omega_n');
+    
+}
+function omega_ns_calc(image){
+  return image.expression(
+    '(((c-d)*(omega_n-35))/-35)+d',{
+      'c':0.0001,
+      'd':0.1,
+      'omega_n':image.select('omega_n')
+    }).rename('omega_ns');
+}
+function u_ns_calc(image){
+  var inner = image.expression(
+    '0.0311*(exp**((-1.0*omega_ns**1.131)/0.016)+0.007)',{
+      'omega_ns':image.select('omega_ns'),
+      'exp':2.718281
+    });
+    return inner.rename('u_ns');
+}
+
+function calc_diff_sq(image){
+  var diff =image.subtract(fric_mean);
+  diff = diff.pow(2);
+  return diff;
+}
+
+//
+
+for (var i = 2018; i < 2019; i++){
+  var startDate = i.toString() +"-02-01";
+  var endDate = i.toString() +"-08-03";
+
+// loads the values from the image collections respectively
+  var omega = helperAlb(omegaName,domain,
+  startDate,endDate,"BRDF_Albedo_Band_Mandatory_Quality_vis","Albedo_BSA_vis",0.001);
+  var f_iso= helperAlb(f_isoName,domain,
+  startDate,endDate,"BRDF_Albedo_Band_Mandatory_Quality_Band1","BRDF_Albedo_Parameters_Band1_iso",0.001);
+  var snow =  helperSnow(snowDBname,domain,
+  startDate,endDate,"NDSI_Snow_Cover_Basic_QA","NDSI",1);
+  
+  
+  // creates the land use mask
+  var landuse = waterMasking();
+  
+  Map.addLayer(omega)
+  Map.addLayer(f_iso)
+  
+  // applies the land use mask to both BDRF & BSA
+  omega=omega.map(landUseMask);
+  f_iso=f_iso.map(landUseMask);
+  
+  // combines black sky albedo a& BDRF into a single dataset
+  var jointedAlbedo = f_iso.combine(omega);
+  // adds the snow mask to the combined dataset
+  jointedAlbedo = jointedAlbedo.combine(snow);
+  // masks the BRDF & BSA wit snow data
+  jointedAlbedo = jointedAlbedo.map(snowMapper).select('qa_BRDF_Albedo_Parameters_Band1_iso','qa_Albedo_BSA_vis');
+  // calls the 3 calculation functions
+  jointedAlbedo = jointedAlbedo.map(omega_n_calc);
+  jointedAlbedo = jointedAlbedo.map(omega_ns_calc);
+  jointedAlbedo = jointedAlbedo.map(u_ns_calc);
+  // takes the median value of the time period
+  var fric_min = jointedAlbedo.min().rename("Min");
+  var fric_max = jointedAlbedo.max().rename("Max");
+  var fric_mean = jointedAlbedo.mean().rename("Mean");
+  var fric_median = jointedAlbedo.median().rename("Median");
+  var friction_diff_sq = jointedAlbedo.map(calc_diff_sq);
+  var fric_sqrt = friction_diff_sq.mean().sqrt().rename("Sqt");
+  var fric_count = jointedAlbedo.count().rename("Count").toDouble();
+  print(fric_min);
+  var combined = ee.Image.cat(fric_min,fric_max,fric_mean,fric_median,fric_sqrt,fric_count);
+//  combined = combined.cat(fric_mean);
+//  combined = combined.cat(fric_median);
+//  combined = combined.cat(fric_sqrt);
+//  combined = combined.cat(fric_count);
+  print(combined)
+}
+//Map.addLayer(landuse.clip(domain));
+//Map.addLayer(snow)
+//Map.addLayer(fric_count)
