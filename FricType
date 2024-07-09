@@ -162,7 +162,7 @@ function calc_diff_sq(image){
 //
 
 for (var i = 2018; i < 2019; i++){
-  var startDate = i.toString() +"-07-15";
+  var startDate = i.toString() +"-06-15";
   var endDate = i.toString() +"-08-03";
 
 // loads the values from the image collections respectively
@@ -231,7 +231,7 @@ for (var i = 2018; i < 2019; i++){
   region: domain,
 });
 print(combined)
-//Map.addLayer(fric_sqrt)
 */
+Map.addLayer(fric_sqrt);
 }
-Export.image.toAsset({image:combined,maxPixels:10000000000000})
+//Export.image.toAsset({image:combined,maxPixels:10000000000000})
