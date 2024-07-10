@@ -22,11 +22,11 @@ var trueColorVis = {
 };
 
 
-//Map.addLayer(trueColor, trueColorVis, 'True Color');
-//Map.addLayer(image.select('Median'),colorizedVis,"test");
+Map.addLayer(reflectances, trueColorVis, 'True Color');
+Map.addLayer(image.select('Median'),colorizedVis,"test");
 
 //Map.addLayer(domain);
-
+/*
  var fnp = "Reflectance_SW_Asia";
   var pxLen = 500;               // output pixel size (m)
   var	proj = 'EPSG:4326';        // WGS84 Geographic
@@ -47,3 +47,4 @@ var trueColorVis = {
   fileFormat: fileFormat,      // geotiff
   region: domain,
   });
+*/
