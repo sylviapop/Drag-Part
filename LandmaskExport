@@ -1,13 +1,28 @@
 var LandUseCollection = "MODIS/061/MCD12Q1";
 var domainShapeFile = "projects/gee-project-sylvia/assets/SEasia";
 var domain = ee.FeatureCollection(domainShapeFile);
-function waterMasking(){
-  var landuse = ee.ImageCollection(LandUseCollection).first().clip(domain);
-  var valueMask = landuse.expression(
-    'thres != value',{
-      'thres':landuse.select('LC_Type1'),
-      'value':17
-      });
-  return valueMask.rename('land mask');
-}
-var watermask = waterMasking();
+
+var landuse = ee.ImageCollection(LandUseCollection).first().clip(domain);
+
+
+
+ var fnp = "LandUse";
+  var pxLen = 500;               // output pixel size (m)
+  var	proj = 'EPSG:4326';        // WGS84 Geographic
+  var fileFormat = 'GeoTIFF';
+  var tileArea = 5120;           // max file size (pixels); must be multiple of shard size
+  var shards = 512;              // unclear how this works/scales
+  var maxPix = 10000000000000;   // max image size (not file size)
+  Export.image.toDrive({         // geoTIFF
+  image: landuse,                  //
+  description: fnp,            // 
+  fileNamePrefix: fnp,   // 
+  scale: pxLen,                // 500 m
+  crs: proj,                   // WGS-84 Geographic
+  maxPixels: maxPix,           // some huge, largely irrelevant number
+  shardSize: shards,           // 256  (tile size / 10)
+  fileDimensions: tileArea,    // 2560 (tile size)
+  skipEmptyTiles: true,        // exclude masked areas in tiled output automatically
+  fileFormat: fileFormat,      // geotiff
+  region: domain,
+  });
