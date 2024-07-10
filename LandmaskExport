@@ -9,4 +9,4 @@ function waterMasking(){
       });
   return valueMask.rename('land mask');
 }
-Map.addLayer(waterMasking())
+Map.addLayer(waterMasking().clip(domain))
