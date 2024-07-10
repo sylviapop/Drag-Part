@@ -1,5 +1,6 @@
 var LandUseCollection = "MODIS/061/MCD12Q1";
 var domainShapeFile = "projects/gee-project-sylvia/assets/test_domain";
+var domain = ee.FeatureCollection(domainShapeFile);
 function waterMasking(){
   var landuse = ee.ImageCollection(LandUseCollection).first();
   var valueMask = landuse.expression(
@@ -9,4 +10,5 @@ function waterMasking(){
       });
   return valueMask.rename('land mask');
 }
-Map.addLayer(waterMasking().clip(domain))
+var watermask = waterMasking().clip(domain);
+Map.addLayer(watermask);
