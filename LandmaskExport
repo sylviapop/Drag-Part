@@ -1,0 +1,13 @@
+
+
+
+
+function waterMasking(){
+  var landuse = ee.ImageCollection(LandUseCollection).first();
+  var valueMask = landuse.expression(
+    'thres != value',{
+      'thres':landuse.select('LC_Type1'),
+      'value':17
+      });
+  return valueMask.rename('land mask');
+}
