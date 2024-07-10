@@ -1,6 +1,4 @@
-
-
-
+var LandUseCollection = "MODIS/061/MCD12Q1";
 
 function waterMasking(){
   var landuse = ee.ImageCollection(LandUseCollection).first();
@@ -11,3 +9,4 @@ function waterMasking(){
       });
   return valueMask.rename('land mask');
 }
+Map.addLayer(waterMasking())
