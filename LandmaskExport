@@ -1,5 +1,5 @@
 var LandUseCollection = "MODIS/061/MCD12Q1";
-
+var domainShapeFile = "projects/gee-project-sylvia/assets/test_domain";
 function waterMasking(){
   var landuse = ee.ImageCollection(LandUseCollection).first();
   var valueMask = landuse.expression(
