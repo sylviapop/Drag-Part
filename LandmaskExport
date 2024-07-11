@@ -3,10 +3,10 @@ var domainShapeFile = "projects/gee-project-sylvia/assets/SEasia";
 var domain = ee.FeatureCollection(domainShapeFile);
 
 var landuse = ee.ImageCollection(LandUseCollection).first().clip(domain);
+print(landuse)
 
 
-
- var fnp = "LandUse";
+ var fnp = "LandUseFixed";
   var pxLen = 500;               // output pixel size (m)
   var	proj = 'EPSG:4326';        // WGS84 Geographic
   var fileFormat = 'GeoTIFF';
