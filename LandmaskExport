@@ -1,3 +1,17 @@
+/**** Start of imports. If edited, may not auto-convert in the playground. ****/
+var geometry = 
+    /* color: #d63000 */
+    /* displayProperties: [
+      {
+        "type": "rectangle"
+      }
+    ] */
+    ee.Geometry.Polygon(
+        [[[32.3202176651837, 37.60416789985267],
+          [32.3202176651837, 33.713773373264324],
+          [38.8021512589337, 33.713773373264324],
+          [38.8021512589337, 37.60416789985267]]], null, false);
+/***** End of imports. If edited, may not auto-convert in the playground. *****/
 var LandUseCollection = "MODIS/061/MCD12Q1";
 var domainShapeFile = "projects/gee-project-sylvia/assets/SEasia";
 var domain = ee.FeatureCollection(domainShapeFile);
