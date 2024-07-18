@@ -1,1 +1,2 @@
 var completed_file = "projects/gee-project-sylvia/assets/FixedNormFricWS";
+var show = ee.Image(completed_file)
