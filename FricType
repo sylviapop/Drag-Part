@@ -232,6 +232,6 @@ for (var i = 2018; i < 2019; i++){
 });
 print(combined)
 */
-Map.addLayer(fric_sqrt);
+Map.addLayer(fric_sqrt,{min: 0, max: 0.038});
 }
 //Export.image.toAsset({image:combined,maxPixels:10000000000000})
