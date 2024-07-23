@@ -1,5 +1,6 @@
+
 var collection = ee.ImageCollection('MODIS/061/MOD15A2H')
-                  .filterDate('2019-01-01', '2019-10-01');
+                  .filterDate('2018-07-15', '2018-08-03');
 
 var colorizedVis = {
   min: 0,
@@ -11,4 +12,4 @@ var colorizedVis = {
   ],
 };
 
-Map.addLayer(collection.select('Lai_500m'), colorizedVis, 'Lai');
+Map.addLayer(collection.select('Lai_500m').median(), colorizedVis, 'Lai');
