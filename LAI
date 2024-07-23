@@ -2,6 +2,7 @@
 var collection = ee.ImageCollection('MODIS/061/MOD15A2H')
                   .filterDate('2018-07-15', '2018-08-03');
 var domainShapeFile = "projects/gee-project-sylvia/assets/SEasia";
+var domain = ee.FeatureCollection(domainShapeFile);
 var colorizedVis = {
   min: 30,
   max: 35,
