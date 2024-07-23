@@ -3,8 +3,8 @@ var collection = ee.ImageCollection('MODIS/061/MOD15A2H')
                   .filterDate('2018-07-15', '2018-08-03');
 
 var colorizedVis = {
-  min: 0,
-  max: 100,
+  min: 30,
+  max: 35,
   palette: [
     'ffffff', 'ce7e45', 'df923d', 'f1b555', 'fcd163', '99b718', '74a901',
     '66a000', '529400', '3e8601', '207401', '056201', '004c00', '023b01',
