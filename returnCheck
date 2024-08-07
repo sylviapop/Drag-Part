@@ -1,3 +1,5 @@
+// looking over the returned data filled Normalized Friction WindSpeed
+
 var completed_file = "projects/gee-project-sylvia/assets/FixedNormFricWS";
 var show = ee.Image(completed_file)
 print(show)
