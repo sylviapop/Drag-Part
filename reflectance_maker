@@ -1,3 +1,5 @@
+// makes exportable reflectances for datafilling within python
+
 var domain = ee.FeatureCollection('projects/gee-project-sylvia/assets/SEasia');
 var image = ee.Image('projects/gee-project-sylvia/assets/SEasiaClimaAlt');
 var colorizedVis = {
