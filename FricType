@@ -1,3 +1,6 @@
+// Main Calculation Function for Normalized Friction Windspeed Climatology and Calculations
+// Sylvia Garmong
+
 // global variables that are used to update names,date & values in map functions
 var qa_name = "BRDF_Albedo_Band_Mandatory_Quality_Band1";
 var band_name = "Albedo_BSA_Band1";
@@ -209,8 +212,9 @@ for (var i = 2018; i < 2019; i++){
 //  combined = combined.cat(fric_count);
   print(combined)
   // EXPORT
+  // Uncomment to export
 /*  
-  var fnp = "SE_Asia_clima"
+  var fnp = "SE_Asia_clima"       // File name
   var pxLen = 500;               // output pixel size (m)
   var	proj = 'EPSG:4326';        // WGS84 Geographic
   var fileFormat = 'GeoTIFF';
