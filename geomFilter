@@ -1,4 +1,6 @@
 
+// THis script doesn't work because the charts that google EE makes 
+// don't have the significant decimals to be helpful for this research 
 
 // global variables that are used to update names & values in map functions
 var qa_name = "BRDF_Albedo_Band_Mandatory_Quality_Band1";
