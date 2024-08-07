@@ -1,3 +1,7 @@
+// This is a presentation script to show a previously created asset 
+// it would be too slow to present within the actual computation script
+// Garmong, Sylvie
+
 // load the domain as global varible since it's used extensively 
 var changeFile = 'projects/gee-project-sylvia/assets/DragPartition_change_in_friction';
 var change = ee.Image(changeFile);
@@ -8,7 +12,7 @@ var maskVis = {
   palette: ['red', 'white','blue'],
   opacity: 1,
 };
-
+// Loading in a Burned Area Dataset
 var dataset = ee.ImageCollection('MODIS/061/MCD64A1')
                   .filter(ee.Filter.date('2005-01-01', '2015-01-01'));
 var burnedArea = dataset.select('BurnDate');
