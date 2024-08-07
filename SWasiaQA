@@ -1,3 +1,9 @@
+// Script for checking the QA due to missing data within the Normalized Friction Windspeed
+// Currently set to the SW Asia Domain
+// Garmong, Sylvia
+
+
+
 // global variables that are used to update names,date & values in map functions
 var qa_name = "BRDF_Albedo_Band_Mandatory_Quality_Band1";
 var band_name = "Albedo_BSA_Band1";
