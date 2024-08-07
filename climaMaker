@@ -1,3 +1,6 @@
+// Scripts that make the Climatology of Normalized Friction Wind Speed
+// Garmong, Sylvia 
+
 // global variables that are used to update names,date & values in map functions
 var qa_name = "BRDF_Albedo_Band_Mandatory_Quality_Band1";
 var band_name = "Albedo_BSA_Band1";
@@ -10,6 +13,9 @@ var LandUseCollection = "MODIS/061/MCD12Q1";
 var omegaName = "MODIS/061/MCD43A3";
 var f_isoName= "MODIS/061/MCD43A1";
 var snowDBname = "MODIS/MCD43A4_006_NDSI";
+
+// startDate & end Date need to be changed further down because for looping doesn't allow for it 
+// here
 var startDate ="2022-05-01";
 var endDate = "2022-06-01";
 
@@ -234,4 +240,3 @@ for (var i = 2000; i < 2021; i++){
   
   
 }
-// quick colormap 
