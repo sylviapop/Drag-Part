@@ -1,3 +1,5 @@
+// Initial QA testing for the Albedo Bands
+
 var modisTest = ee.ImageCollection('MODIS/061/MCD43A3').filter(
   ee.Filter.date('2019-06-01', '2020-01-01'));
 var blackSkyAlbedoVis = {
