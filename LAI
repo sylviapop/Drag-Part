@@ -1,4 +1,6 @@
+// LAI index based Index Testing
 
+// Garmong, Sylvie
 var collection = ee.ImageCollection('MODIS/061/MOD15A2H')
                   .filterDate('2018-07-15', '2018-08-03');
 var domainShapeFile = "projects/gee-project-sylvia/assets/SEasia";
